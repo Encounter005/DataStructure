@@ -7,6 +7,7 @@
 
 template<typename T, size_t SIZE = 0> class MyArray {
 public:
+
     constexpr MyArray() {
         num_items = SIZE;
         if (num_items) {
@@ -19,7 +20,6 @@ public:
     MyArray(const std::initializer_list<T> &ilist) {
         num_items = ilist.size();
         if (ilist.size()) {
-            size_t idx = 0;
             data_      = std::unique_ptr<T[]>(new T[num_items]());
             std::copy(ilist.begin(), ilist.end(), data_.get());
         } else {
@@ -162,9 +162,9 @@ public:
     iterator begin() { return data_.get(); }
     iterator end() { return data_.get() + num_items; }
 
-    const_iterator begin() const { return data_.get(); }
+    const_iterator cbegin() const { return data_.get(); }
 
-    const_iterator end() const { return data_.get() + num_items; }
+    const_iterator cend() const { return data_.get() + num_items; }
 
 private:
     std::unique_ptr<T[]> data_;
