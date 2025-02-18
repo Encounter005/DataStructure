@@ -5,14 +5,14 @@
 #include <memory>
 #include <stdexcept>
 
-template<typename T> class List {
+template<typename T> class MyList {
 public:
-    List() : num_items_(0) {
+    MyList() : num_items_(0) {
         puse_ = std::shared_ptr<Node>(new Node(0));
         head_ = puse_;
     }
 
-    explicit List(const std::initializer_list<T> &ilist) : List() {
+    explicit MyList(const std::initializer_list<T> &ilist) : MyList() {
         if (ilist.size()) {
             for (const auto &elm : ilist) {
                 push_back(elm);
@@ -20,15 +20,15 @@ public:
         }
     }
 
-    explicit List(size_t n) : List() {
+    explicit MyList(size_t n) : MyList() {
         while (n--) {
             push_back(0);
         }
     }
 
-    List(const List &other) { *this = other; }
+    MyList(const MyList &other) { *this = other; }
 
-    List &operator=(const List &other) {
+    MyList &operator=(const MyList &other) {
         if (this == &other) {
             return *this;
         }
@@ -40,17 +40,18 @@ public:
         return *this;
     }
 
-    List(List &&other) noexcept { *this = std::move(other); }
-
-    List &operator=(List &&other) noexcept {
-        if (this == &other) {
-            return *this;
-        }
-        swap(other);
-        return *this;
+    MyList(MyList &&other) noexcept : head_(other.head_), tail_(other.tail_) {
     }
 
-    ~List() { clear(); }
+    MyList &operator=(MyList &&other) noexcept {
+        if (this != &other) {
+            clear();
+            head_ = std::move(other.head_);
+            tail_ = std::move(other.tail_);
+        }
+        return *this;
+    }
+    ~MyList() { clear(); }
 
     void push_back(const T &elm) {
         auto new_node = std::shared_ptr<Node>(new Node(elm));
@@ -103,7 +104,7 @@ public:
         }
     }
 
-    void swap(List &other) {
+    void swap(MyList &other) {
         if (this == &other) {
             return;
         }
@@ -113,7 +114,7 @@ public:
     }
 
     void reverse() {
-        List tmp;
+        MyList tmp;
         for (const auto &elm : *this) {
             tmp.push_front(elm);
         }
@@ -272,7 +273,7 @@ public:
     template<typename... Args>
     Iterator emplace(ConstIterator pos, Args &&...args) {
         T args_data[sizeof...(Args)]{args...};
-        for (size_t i = 0; i < sizeof...(Args); ++i) {
+        for (size_t i = 0; i < sizeof...(Args); i++) {
             insert(args_data[i], pos);
         }
         return pos;
@@ -283,7 +284,10 @@ public:
     }
 
     template<typename... Args> void emplace_front(Args &&...args) {
-        emplace(cbegin(), std::forward<Args>(args)...);
+        T args_data[sizeof...(Args)]{args...};
+        for (size_t i = sizeof...(Args); i-- > 0;) {
+            insert(args_data[i], begin());
+        }
     }
 
     void erase(Iterator pos) {
