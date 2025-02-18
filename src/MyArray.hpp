@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <initializer_list>
+#include <iostream>
 #include <memory>
 #include <stdexcept>
 
@@ -18,7 +19,7 @@ public:
     }
 
     MyArray(const std::initializer_list<T> &ilist) {
-        num_items = ilist.size();
+        num_items = SIZE;
         if (ilist.size()) {
             data_      = std::unique_ptr<T[]>(new T[num_items]());
             std::copy(ilist.begin(), ilist.end(), data_.get());
@@ -91,20 +92,23 @@ public:
     template<typename U> void insert(U &&element, size_t pos) {
         if (pos > num_items) {
             throw std::runtime_error("The index is larger than the size");
+            std::cerr << "size: " << this->size() << std::endl;
         }
 
-        std::unique_ptr<T[]> new_data_(new T[num_items + 1]());
+        
+        const size_t current_size = num_items;
+        auto new_data_ = std::make_unique<T[]>(current_size + 1);
         for (size_t i = 0, j = 0; i < num_items; i++, j++) {
             if (i == pos) {
                 new_data_[j++] = std::forward<U>(element);
             }
-            new_data_[j] = data_[i];
+            new_data_[j] = std::move(data_[i]);
         }
-
-        if (pos == num_items) new_data_[num_items] = std::forward<U>(element);
+        
+        
+        new_data_[pos] = std::forward<U>(element);
 
         data_ = std::move(new_data_);
-        ++num_items;
     }
 
     void remove(size_t pos) {
