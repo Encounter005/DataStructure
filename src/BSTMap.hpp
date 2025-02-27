@@ -12,8 +12,8 @@ template<typename Key, typename T> struct TreeNode {
         const Key& key, const T& value, TreeNode* parent = nullptr,
         TreeNode* left = nullptr, TreeNode* right = nullptr)
         : data(std::make_pair(key, value))
-        , left(left)   // 正确初始化
-        , right(right)
+        , left(nullptr)   // 正确初始化
+        , right(nullptr)
         , parent(parent) {}
 };
 
